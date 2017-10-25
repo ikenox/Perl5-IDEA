@@ -19,6 +19,7 @@ package base;
 import com.intellij.codeInsight.TargetElementUtil;
 import com.intellij.codeInsight.actions.MultiCaretCodeInsightAction;
 import com.intellij.codeInsight.completion.CompletionType;
+import com.intellij.codeInsight.controlflow.ControlFlow;
 import com.intellij.codeInsight.editorActions.SelectWordHandler;
 import com.intellij.codeInsight.highlighting.actions.HighlightUsagesAction;
 import com.intellij.codeInsight.intention.IntentionAction;
@@ -90,6 +91,7 @@ import com.perl5.lang.perl.extensions.PerlImplicitVariablesProvider;
 import com.perl5.lang.perl.extensions.packageprocessor.PerlExportDescriptor;
 import com.perl5.lang.perl.fileTypes.PerlFileTypeScript;
 import com.perl5.lang.perl.fileTypes.PerlPluginBaseFileType;
+import com.perl5.lang.perl.idea.codeInsight.controlFlow.PerlControlFlowBuilder;
 import com.perl5.lang.perl.idea.codeInsight.Perl5CodeInsightSettings;
 import com.perl5.lang.perl.idea.configuration.settings.PerlLocalSettings;
 import com.perl5.lang.perl.idea.configuration.settings.PerlSharedSettings;
@@ -1194,6 +1196,13 @@ public abstract class PerlLightTestCase extends LightCodeInsightFixtureTestCase 
       }
     );
     UsefulTestCase.assertSameLinesWithFile(getTestResultsFilePath(), actualDump.toString());
+  }
+
+  protected final void doTestControlFlow() {
+    initWithFileSmartWithoutErrors();
+    ControlFlow controlFlow = PerlControlFlowBuilder.getFor(getFile());
+    final String stringifiedControlFlow = StringUtil.join(controlFlow.getInstructions(), Object::toString, "\n");
+    UsefulTestCase.assertSameLinesWithFile(getTestResultsFilePath(), stringifiedControlFlow);
   }
 
   protected void doLineCommenterTest() {
