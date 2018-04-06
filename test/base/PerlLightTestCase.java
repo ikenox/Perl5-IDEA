@@ -1217,9 +1217,9 @@ public abstract class PerlLightTestCase extends LightCodeInsightFixtureTestCase 
     if (ENABLE_SVG_GENERATION) {
       try {
         String svgDataPath = getSvgDataPath();
-        if (!new File(svgDataPath).exists()) {
+        //if (!new File(svgDataPath).exists()) { // fixme this check may be configurable
           saveSvgFile(svgDataPath, controlFlow);
-        }
+        //}
       }
       catch (Exception e) {
         e.printStackTrace();
