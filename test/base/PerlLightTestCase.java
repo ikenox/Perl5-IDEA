@@ -100,7 +100,7 @@ import com.perl5.lang.perl.fileTypes.PerlFileTypeScript;
 import com.perl5.lang.perl.fileTypes.PerlPluginBaseFileType;
 import com.perl5.lang.perl.idea.codeInsight.Perl5CodeInsightSettings;
 import com.perl5.lang.perl.idea.codeInsight.controlFlow.PartialConditionalInstructionImpl;
-import com.perl5.lang.perl.idea.codeInsight.controlFlow.PerlAssignInstuction;
+import com.perl5.lang.perl.idea.codeInsight.controlFlow.PerlAssignInstruction;
 import com.perl5.lang.perl.idea.codeInsight.controlFlow.PerlControlFlowBuilder;
 import com.perl5.lang.perl.idea.configuration.settings.PerlLocalSettings;
 import com.perl5.lang.perl.idea.configuration.settings.PerlSharedSettings;
@@ -1297,10 +1297,10 @@ public abstract class PerlLightTestCase extends LightCodeInsightFixtureTestCase 
   }
 
   private String getInstructionText(@NotNull Instruction instruction) {
-    if (instruction instanceof PerlAssignInstuction) {
-      return ((PerlAssignInstuction)instruction).getLeftSide().getText() + " "
-             + ((PerlAssignInstuction)instruction).getOperation().getText() + " "
-             + ((PerlAssignInstuction)instruction).getRightSide().getText();
+    if (instruction instanceof PerlAssignInstruction) {
+      return ((PerlAssignInstruction)instruction).getLeftSide().getText() + " "
+             + ((PerlAssignInstruction)instruction).getOperation().getText() + " "
+             + ((PerlAssignInstruction)instruction).getRightSide().getText();
     }
     else {
       PsiElement element = instruction.getElement();
