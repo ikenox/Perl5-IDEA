@@ -1264,7 +1264,7 @@ public abstract class PerlLightTestCase extends LightCodeInsightFixtureTestCase 
       else if (instruction instanceof ConditionalInstruction) {
         ConditionalInstruction conditionalInstruction = (ConditionalInstruction)instruction;
         builder.append("\n").append("Its ").append(conditionalInstruction.getResult()).
-          append(" branch, condition: ").append(conditionalInstruction.getCondition().getText());
+          append(" branch, condition: ").append(getTextSafe(conditionalInstruction.getCondition()));
       }
       builder.append("\"").append("]");
 
