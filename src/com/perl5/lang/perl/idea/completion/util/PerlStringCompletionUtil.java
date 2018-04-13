@@ -30,7 +30,7 @@ import com.perl5.lang.perl.extensions.packageprocessor.PerlPackageOptionsProvide
 import com.perl5.lang.perl.extensions.packageprocessor.PerlPackageParentsProvider;
 import com.perl5.lang.perl.extensions.packageprocessor.PerlPackageProcessor;
 import com.perl5.lang.perl.idea.PerlElementPatterns;
-import com.perl5.lang.perl.lexer.PerlLexer;
+import com.perl5.lang.perl.parser.PerlParserUtil;
 import com.perl5.lang.perl.psi.*;
 import com.perl5.lang.perl.psi.impl.PerlStringContentElementImpl;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
@@ -109,7 +109,9 @@ public class PerlStringCompletionUtil implements PerlElementPatterns {
 
         protected void processStringElement(PerlStringContentElement stringContentElement) {
           String text = stringContentElement.getText();
-          if (StringUtil.isNotEmpty(text) && !HASH_INDEXES_CACHE.contains(text) && PerlLexer.IDENTIFIER_PATTERN.matcher(text).matches()) {
+          if (StringUtil.isNotEmpty(text) &&
+              !HASH_INDEXES_CACHE.contains(text) &&
+              PerlParserUtil.IDENTIFIER_PATTERN.matcher(text).matches()) {
             HASH_INDEXES_CACHE.add(text);
             addElement(text, result);
           }
