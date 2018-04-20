@@ -31,7 +31,13 @@ public class PerlAnnotatorTest extends PerlLightTestCase {
     return "testData/annotator/perl";
   }
 
-  public void testLoopControlInspection() {doInspectionTest(PerlLoopControlInspection.class);}
+  public void testLoopControlInspection() {doTestLoopControlInspection();}
+
+  public void testLoopControlTryCatch() {doTestLoopControlInspection();}
+
+  private void doTestLoopControlInspection() {
+    doInspectionTest(PerlLoopControlInspection.class);
+  }
 
   private void doTestUseVarsInspection() {doInspectionTest(PerlUseVarsInspection.class);}
 
