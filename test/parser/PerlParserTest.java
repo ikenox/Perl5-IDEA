@@ -85,6 +85,8 @@ public class PerlParserTest extends PerlParserTestBase {
 
   public void testParenthesizedPrintArguments() {doTest();}
 
+  public void testBareAccessors() {doTest();}
+
   public void testClassAccessorSubDeclaration() {doTest();}
 
   public void testUseBareword() {doTest();}

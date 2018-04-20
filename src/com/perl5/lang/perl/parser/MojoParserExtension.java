@@ -22,10 +22,6 @@ import com.perl5.lang.mojolicious.MojoliciousElementTypes;
 import com.perl5.lang.perl.idea.highlighter.PerlSyntaxHighlighter;
 import com.perl5.lang.perl.parser.builder.PerlBuilder;
 import gnu.trove.THashMap;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.Map;
 
 import static com.perl5.lang.perl.idea.highlighter.PerlSyntaxHighlighter.PERL_SUB_DEFINITION;
 
@@ -46,12 +42,6 @@ public class MojoParserExtension extends PerlParserExtensionBase implements Mojo
   public void addHighlighting() {
     super.addHighlighting();
     PerlSyntaxHighlighter.safeMap(PERL_SUB_DEFINITION, TOKENS_SET);
-  }
-
-  @NotNull
-  @Override
-  public Map<String, IElementType> getCustomTokensMap() {
-    return Collections.emptyMap();
   }
 
   @Override
