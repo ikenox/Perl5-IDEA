@@ -241,4 +241,6 @@ public interface PerlTokenSets extends PerlElementTypes, MooseElementTypes {
   );
 
   TokenSet LAZY_CODE_BLOCKS = TokenSet.create(LP_CODE_BLOCK, LP_CODE_BLOCK_WITH_TRYCATCH);
+
+  TokenSet HEREDOC_ENDS = TokenSet.create(HEREDOC_END, HEREDOC_END_INDENTABLE);
 }
