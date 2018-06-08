@@ -5,8 +5,8 @@ out/
 classes/
 gen/
 *.iml
-.idea/
-!.idea/runConfigurations/
+.idea/*
+!.idea/runConfigurations
 tmp/
 icons/*.psd
 testData/controlFlow/perl/svg
