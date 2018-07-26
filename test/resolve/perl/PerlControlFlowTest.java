@@ -32,6 +32,8 @@ public class PerlControlFlowTest extends PerlLightTestCase {
 
   public void testNextUntil() {doTest();}
 
+  public void testNextBlock(){doTest();}
+
   public void testNextForeachModifier() {doTest();}
 
   public void testRegexpEval() {doTest();}
