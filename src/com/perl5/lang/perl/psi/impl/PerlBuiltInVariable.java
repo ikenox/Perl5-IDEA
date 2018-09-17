@@ -16,8 +16,13 @@
 
 package com.perl5.lang.perl.psi.impl;
 
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiManager;
+import com.perl5.lang.perl.psi.PsiPerlExpr;
+import com.perl5.lang.perl.psi.PsiPerlMapExpr;
+import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.util.PerlPackageUtil;
+import com.perl5.lang.tt2.psi.PsiExpr;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,4 +47,5 @@ public class PerlBuiltInVariable extends PerlImplicitVariableDeclaration {
   public boolean isBuiltIn() {
     return true;
   }
+
 }

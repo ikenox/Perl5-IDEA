@@ -599,6 +599,19 @@ public class PerlPsiUtil implements PerlElementTypes {
     else if (element instanceof PsiPerlDerefExprImpl) {
       return getPerlExpressionNamespace(element.getLastChild());
     }
+    else if (element instanceof PsiPerlMapExpr) {
+      return getPerlExpressionNamespace(((PsiPerlMapExpr)element).getExpr());
+    }
+    else if (element instanceof PsiPerlGrepExpr) {
+      return getPerlExpressionNamespace(((PsiPerlGrepExpr)element).getExpr());
+    }
+    else if (element instanceof PsiPerlSortExpr) {
+      PsiPerlScalarVariable v=((PsiPerlSortExpr)element).getScalarVariable();
+      if (v!= null){
+        String p = v.guessVariableType();
+        return  p;
+      }
+    }
 
     return null;
   }

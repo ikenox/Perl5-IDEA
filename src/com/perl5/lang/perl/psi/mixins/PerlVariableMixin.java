@@ -109,19 +109,38 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
   @Nullable
   private String getVariableTypeHeavy() {
     if (this instanceof PsiPerlScalarVariable) {
-      //			System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
+      System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
+
+      if (isBuiltIn()){
+        // TODO only $_
+        PsiPerlExpr expr = null;
+        PsiElement run = getParent();
+        while (run != null) {
+          if (run instanceof PsiPerlMapExpr) {
+            expr = ((PsiPerlMapExpr)run).getExpr();
+            break;
+          }
+          run = run.getParent();
+        }
+
+        if (expr != null) {
+          return PerlPsiUtil.getPerlExpressionNamespace(expr);
+        }
+        return null;
+      }
 
       PerlVariableNameElement variableNameElement = getVariableNameElement();
 
       if (variableNameElement != null) {
         // find lexicaly visible declaration and check type
-        final PerlVariableDeclarationElement declarationWrapper = getLexicalDeclaration();
-        if (declarationWrapper != null) {
-          if (declarationWrapper instanceof PerlImplicitVariableDeclaration) {
-            return ((PerlImplicitVariableDeclaration)declarationWrapper).getVariableClass();
-          }
+          final PerlVariableDeclarationElement declarationWrapper = getLexicalDeclaration();
+         if (declarationWrapper != null) {
 
-          if (declarationWrapper.isInvocantDeclaration() || declarationWrapper.isSelf()) {
+            if (declarationWrapper instanceof PerlImplicitVariableDeclaration) {
+              return ((PerlImplicitVariableDeclaration)declarationWrapper).getVariableClass();
+            }
+
+            if (declarationWrapper.isInvocantDeclaration() || declarationWrapper.isSelf()) {
             PerlSelfHinter selfHinter = PsiTreeUtil.getParentOfType(declarationWrapper, PerlSelfHinter.class);
             if (selfHinter != null) {
               return selfHinter.getSelfNamespace();

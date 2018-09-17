@@ -49,7 +49,7 @@ public abstract class PerlMethodMixin extends PerlCompositeElementImpl implement
 
   @Nullable
   protected String getContextPackageName() {
-    return CachedValuesManager.getCachedValue(this, () -> CachedValueProvider.Result.create(getContextPackageNameHeavy(), this));
+      return CachedValuesManager.getCachedValue(this, () -> CachedValueProvider.Result.create(getContextPackageNameHeavy(), this));
   }
 
 

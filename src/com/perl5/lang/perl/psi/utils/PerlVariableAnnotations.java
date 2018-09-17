@@ -18,10 +18,8 @@ package com.perl5.lang.perl.psi.utils;
 
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
-import com.perl5.lang.perl.psi.PerlAnnotation;
-import com.perl5.lang.perl.psi.PerlNamespaceElement;
-import com.perl5.lang.perl.psi.PsiPerlAnnotationDeprecated;
-import com.perl5.lang.perl.psi.PsiPerlAnnotationType;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.perl5.lang.perl.psi.*;
 import com.perl5.lang.perl.psi.stubs.PerlStubSerializationUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +37,7 @@ public class PerlVariableAnnotations {
 
   private PerlReturnType myRefType = PerlReturnType.VALUE;
   private String myType = null;
+  private String myElementType = null;
 
 
   public PerlVariableAnnotations() {
@@ -81,6 +80,14 @@ public class PerlVariableAnnotations {
     myType = type;
   }
 
+  public void setElementType(String type) {
+    myElementType = type;
+  }
+
+  public String getElementType() {
+    return myElementType;
+  }
+
   public static PerlVariableAnnotations deserialize(@NotNull StubInputStream dataStream) throws IOException {
     return new PerlVariableAnnotations(
       dataStream.readByte(),
@@ -103,11 +110,21 @@ public class PerlVariableAnnotations {
       }
       else if (annotation instanceof PsiPerlAnnotationType) // type
       {
-        PerlNamespaceElement ns = ((PsiPerlAnnotationType)annotation).getType();
+        PerlNamespaceElement ns;
+        ns = ((PsiPerlAnnotationType)annotation).getType();
         if (ns != null) {
           myAnnotations.setType(ns.getCanonicalName());
           myAnnotations.setRefType(PerlReturnType.REF);
           // todo implement brackets and braces
+        }else{
+          PsiPerlArrayrefType arrayrefType = ((PsiPerlAnnotationType)annotation).getArrayrefType();
+          if(arrayrefType != null){
+            ns = PsiTreeUtil.getChildOfType(arrayrefType, PerlNamespaceElement.class);
+            if (ns != null) {
+              myAnnotations.setElementType(ns.getCanonicalName());
+              myAnnotations.setRefType(PerlReturnType.REF);
+            }
+          }
         }
       }
     }
