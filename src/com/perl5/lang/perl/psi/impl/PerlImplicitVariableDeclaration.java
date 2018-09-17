@@ -106,7 +106,7 @@ public class PerlImplicitVariableDeclaration extends PerlImplicitElement
 
   @Nullable
   @Override
-  public String guessVariableType() {
+  public PerlVariable guessVariableType() {
     return getVariableClass();
   }
 

@@ -103,13 +103,13 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
 
   @Nullable
   @Override
-  public String guessVariableType() {
+  public PerlType guessVariableType() {
     return CachedValuesManager
       .getCachedValue(this, () -> CachedValueProvider.Result.create(getVariableTypeHeavy(), PsiModificationTracker.MODIFICATION_COUNT));
   }
 
   @Nullable
-  private String getVariableTypeHeavy() {
+  private PerlType getVariableTypeHeavy() {
     if (this instanceof PsiPerlScalarVariable) {
       // System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
 

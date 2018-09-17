@@ -35,6 +35,7 @@ import com.perl5.lang.perl.psi.stubs.subsdefinitions.PerlLightSubDefinitionsReve
 import com.perl5.lang.perl.psi.stubs.subsdefinitions.PerlSubDefinitionReverseIndex;
 import com.perl5.lang.perl.psi.stubs.subsdefinitions.PerlSubDefinitionsIndex;
 import com.perl5.lang.perl.psi.utils.PerlSubArgument;
+import com.perl5.lang.perl.types.PerlType;
 import com.perl5.lang.perl.util.processors.PerlImportsCollector;
 import com.perl5.lang.perl.util.processors.PerlSubImportsCollector;
 import gnu.trove.THashSet;
@@ -203,7 +204,7 @@ public class PerlSubUtil implements PerlElementTypes {
    * @return package name or null
    */
   @Nullable
-  public static String getMethodReturnValue(PerlMethodContainer methodContainer) {
+  public static PerlType getMethodReturnValue(PerlMethodContainer methodContainer) {
     if (methodContainer instanceof PerlSmartMethodContainer) {
       return ((PerlSmartMethodContainer)methodContainer).getReturnPackageName();
     }

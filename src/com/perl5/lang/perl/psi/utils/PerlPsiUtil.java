@@ -589,7 +589,6 @@ public class PerlPsiUtil implements PerlElementTypes {
       return !namespace.isEmpty() ? new PerlTypeNamespace(namespace) : null;
     }
     else if (element instanceof PerlVariable) {
-      // TODO
       return ((PerlVariable)element).guessVariableType();
     }
     else if (isSelfShortcut(element)) {
@@ -597,7 +596,6 @@ public class PerlPsiUtil implements PerlElementTypes {
       return namespace != null && !namespace.isEmpty() ? new PerlTypeNamespace(namespace) : null;
     }
     else if (element instanceof PerlMethodContainer) {
-      // TODO
       return PerlSubUtil.getMethodReturnValue((PerlMethodContainer)element);
     }
     else if (element instanceof PsiPerlParenthesisedExprImpl) {
