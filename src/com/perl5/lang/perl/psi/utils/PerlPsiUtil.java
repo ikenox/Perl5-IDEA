@@ -41,6 +41,8 @@ import com.perl5.lang.perl.psi.properties.PerlLabelScope;
 import com.perl5.lang.perl.psi.properties.PerlLoop;
 import com.perl5.lang.perl.psi.properties.PerlStatementsContainer;
 import com.perl5.lang.perl.psi.stubs.PerlPolyNamedElementStub;
+import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeNamespace;
 import com.perl5.lang.perl.util.PerlPackageUtil;
 import com.perl5.lang.perl.util.PerlSubUtil;
 import org.jetbrains.annotations.Contract;
@@ -573,24 +575,29 @@ public class PerlPsiUtil implements PerlElementTypes {
   }
 
   @Nullable
-  public static String getPerlExpressionNamespace(@Nullable PsiElement element) {
+  public static PerlType getPerlExpressionNamespace(@Nullable PsiElement element) {
     if (element == null) {
       return null;
     }
 
     if (element instanceof PsiPerlPackageExpr) {
-      return ((PerlNamespaceElement)element.getFirstChild()).getCanonicalName();
+      String namespace = ((PerlNamespaceElement)element.getFirstChild()).getCanonicalName();
+      return !namespace.isEmpty() ? new PerlTypeNamespace(namespace) : null;
     }
     else if (element instanceof PerlString) {
-      return ElementManipulators.getValueText(element);
+      String namespace = ElementManipulators.getValueText(element);
+      return !namespace.isEmpty() ? new PerlTypeNamespace(namespace) : null;
     }
     else if (element instanceof PerlVariable) {
+      // TODO
       return ((PerlVariable)element).guessVariableType();
     }
     else if (isSelfShortcut(element)) {
-      return PerlPackageUtil.getContextPackageName(element);
+      String namespace = PerlPackageUtil.getContextPackageName(element);
+      return namespace != null && !namespace.isEmpty() ? new PerlTypeNamespace(namespace) : null;
     }
     else if (element instanceof PerlMethodContainer) {
+      // TODO
       return PerlSubUtil.getMethodReturnValue((PerlMethodContainer)element);
     }
     else if (element instanceof PsiPerlParenthesisedExprImpl) {
@@ -599,19 +606,16 @@ public class PerlPsiUtil implements PerlElementTypes {
     else if (element instanceof PsiPerlDerefExprImpl) {
       return getPerlExpressionNamespace(element.getLastChild());
     }
-    else if (element instanceof PsiPerlMapExpr) {
-      return getPerlExpressionNamespace(((PsiPerlMapExpr)element).getExpr());
-    }
     else if (element instanceof PsiPerlGrepExpr) {
       return getPerlExpressionNamespace(((PsiPerlGrepExpr)element).getExpr());
     }
     else if (element instanceof PsiPerlSortExpr) {
-      PsiPerlScalarVariable v=((PsiPerlSortExpr)element).getScalarVariable();
-      if (v!= null){
-        String p = v.guessVariableType();
-        return  p;
-      }
+      return getPerlExpressionNamespace(((PsiPerlSortExpr)element).getScalarVariable());
     }
+    //else if (element instanceof PsiPerlMapExpr) {
+    // TODO
+    //return getPerlExpressionNamespace(((PsiPerlMapExpr)element).getExpr());
+    //}
 
     return null;
   }

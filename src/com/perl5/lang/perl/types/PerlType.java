@@ -16,7 +16,12 @@
 
 package com.perl5.lang.perl.types;
 
+import org.jetbrains.annotations.Nullable;
+
 public abstract class PerlType {
   public static final String ARRAY_REF = "ArrayRef";
   public static final String HASH_REF = "HashRef";
+
+  @Nullable
+  public abstract String getNamespaceName();
 }

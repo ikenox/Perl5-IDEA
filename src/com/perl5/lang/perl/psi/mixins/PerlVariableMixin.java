@@ -35,6 +35,8 @@ import com.perl5.lang.perl.psi.impl.PerlImplicitVariableDeclaration;
 import com.perl5.lang.perl.psi.properties.PerlLexicalScope;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
+import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeArrayRef;
 import com.perl5.lang.perl.util.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -109,10 +111,10 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
   @Nullable
   private String getVariableTypeHeavy() {
     if (this instanceof PsiPerlScalarVariable) {
-      System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
+      // System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
 
-      if (isBuiltIn()){
-        // TODO only $_
+      if (isBuiltIn() && "_".equals(getName())) {
+        // resolve default variable $_
         PsiPerlExpr expr = null;
         PsiElement run = getParent();
         while (run != null) {
@@ -123,9 +125,13 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
           run = run.getParent();
         }
 
-        if (expr != null) {
-          return PerlPsiUtil.getPerlExpressionNamespace(expr);
+        PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
+        if (type != null) {
+          if (type instanceof PerlTypeArrayRef) {
+            return ((PerlTypeArrayRef)type).getInnerType().getNamespaceName();
+          }
         }
+
         return null;
       }
 
@@ -133,14 +139,14 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
 
       if (variableNameElement != null) {
         // find lexicaly visible declaration and check type
-          final PerlVariableDeclarationElement declarationWrapper = getLexicalDeclaration();
-         if (declarationWrapper != null) {
+        final PerlVariableDeclarationElement declarationWrapper = getLexicalDeclaration();
+        if (declarationWrapper != null) {
 
-            if (declarationWrapper instanceof PerlImplicitVariableDeclaration) {
-              return ((PerlImplicitVariableDeclaration)declarationWrapper).getVariableClass();
-            }
+          if (declarationWrapper instanceof PerlImplicitVariableDeclaration) {
+            return ((PerlImplicitVariableDeclaration)declarationWrapper).getVariableClass();
+          }
 
-            if (declarationWrapper.isInvocantDeclaration() || declarationWrapper.isSelf()) {
+          if (declarationWrapper.isInvocantDeclaration() || declarationWrapper.isSelf()) {
             PerlSelfHinter selfHinter = PsiTreeUtil.getParentOfType(declarationWrapper, PerlSelfHinter.class);
             if (selfHinter != null) {
               return selfHinter.getSelfNamespace();

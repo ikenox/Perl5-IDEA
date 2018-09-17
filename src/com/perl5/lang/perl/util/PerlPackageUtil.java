@@ -178,6 +178,7 @@ public class PerlPackageUtil implements PerlElementTypes, PerlCorePackages {
    * @param name package name
    * @return canonical package name
    */
+  @NotNull
   public static String getCanonicalPackageName(@NotNull String name) {
     String canonicalName = getCanonicalName(name);
     return StringUtils.startsWith(canonicalName, MAIN_PACKAGE_FULL) ?
