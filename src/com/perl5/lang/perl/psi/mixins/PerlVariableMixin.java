@@ -122,14 +122,24 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
         while (run != null) {
           if (run instanceof PsiPerlMapExpr) {
             expr = ((PsiPerlMapExpr)run).getExpr();
-            break;
           }
           else if (run instanceof PsiPerlGrepExpr) {
             expr = ((PsiPerlGrepExpr)run).getExpr();
-            break;
           }
-          // TODO for, foreach
-          run = run.getParent();
+          else if (run instanceof PsiPerlForCompound) {
+            PsiPerlConditionExpr cond = ((PsiPerlForCompound)run).getConditionExpr();
+            expr = cond == null ? null : cond.getExpr();
+          }
+          //else if (run instanceof PsiPerlStatement) {
+            // TODO EXPR for EXPR
+            //PsiPerlForStatementModifier type = PsiTreeUtil.getChildOfType(run, PsiPerlForStatementModifier.class);
+            //expr = type == null ? null : type.getExpr();
+          //}
+          else {
+            run = run.getParent();
+            continue;
+          }
+          break;
         }
         PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
         if (type instanceof PerlTypeArray) {
