@@ -37,8 +37,7 @@ public abstract class PerlType {
     if( typeString.startsWith(arrayRefStart) && typeString.endsWith(arrayRefEnd) ){
       // fixme handle deep nested inner type
       String innerType = typeString
-        .substring(typeString.length() - arrayRefEnd.length())
-        .substring(arrayRefStart.length());
+        .substring(arrayRefStart.length(), typeString.length() - arrayRefEnd.length());
       return PerlTypeArrayRef.fromInnerType(PerlTypeNamespace.fromNamespace(innerType));
     }else{
       return PerlTypeNamespace.fromNamespace(typeString);

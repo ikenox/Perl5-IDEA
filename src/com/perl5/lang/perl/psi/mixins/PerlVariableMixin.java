@@ -20,7 +20,6 @@ import com.intellij.lang.ASTNode;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.CachedValueProvider;
@@ -118,11 +117,13 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
         // resolve default variable $_
         PsiPerlExpr expr = null;
         PsiElement run = getParent();
+        // search parents
         while (run != null) {
           if (run instanceof PsiPerlMapExpr) {
             expr = ((PsiPerlMapExpr)run).getExpr();
             break;
-          }else if (run instanceof PsiPerlGrepExpr){
+          }
+          else if (run instanceof PsiPerlGrepExpr) {
             expr = ((PsiPerlGrepExpr)run).getExpr();
             break;
           }
@@ -131,13 +132,31 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
         // TODO for, foreach
 
         // fixme refactoring
-        if (expr instanceof PsiPerlArrayCastExpr){
-          expr = ((PsiPerlArrayCastExpr)expr).getExpr();
-          PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
-          if (type != null) {
-            if (type instanceof PerlTypeArrayRef) {
-              return ((PerlTypeArrayRef)type).getInnerType();
+        if (expr instanceof PsiPerlArrayCastExpr) {
+          // @$some_var
+          PsiPerlExpr castedExpr = ((PsiPerlArrayCastExpr)expr).getExpr();
+          if (castedExpr != null) {
+            PerlType type = PerlPsiUtil.getPerlExpressionNamespace(castedExpr);
+            if (type != null) {
+              if (type instanceof PerlTypeArrayRef) {
+                return ((PerlTypeArrayRef)type).getInnerType();
+              }
             }
+            return null;
+          }
+
+          // @{ ... }
+          PsiPerlBlock block = ((PsiPerlArrayCastExpr)expr).getBlock();
+          if (block != null) {
+            // regard last expression namespace as returned type
+            PsiPerlStatement statement = block.getLastStatement();
+            if(statement!=null){
+              PerlType type = PerlPsiUtil.getPerlExpressionNamespace(statement.getExpr());
+              if (type != null) {
+                return ((PerlTypeArrayRef)type).getInnerType();
+              }
+            }
+            return null;
           }
         }
         // TODO non-ref array
@@ -239,7 +258,7 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
                         if (lastExpression instanceof PerlDerefExpression) {
                           returnValue = ((PerlDerefExpression)lastExpression).guessType();
                         }
-                        if (returnValue!=null) {
+                        if (returnValue != null) {
                           guessResult[0] = returnValue;
                           return false;
                         }

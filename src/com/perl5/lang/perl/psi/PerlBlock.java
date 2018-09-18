@@ -17,6 +17,7 @@
 package com.perl5.lang.perl.psi;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.perl5.lang.perl.psi.properties.PerlLexicalScope;
 import com.perl5.lang.perl.psi.properties.PerlLoop;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
@@ -31,5 +32,14 @@ public interface PerlBlock extends PerlLoop, PerlLexicalScope {
   default PsiPerlContinueBlock getContinueBlock() {
     PsiElement potentialBlock = PerlPsiUtil.getNextSignificantSibling(this);
     return potentialBlock instanceof PsiPerlContinueBlock ? (PsiPerlContinueBlock)potentialBlock : null;
+  }
+
+  @Nullable
+  default PsiPerlStatement getLastStatement(){
+    PsiPerlStatement[] children = PsiTreeUtil.getChildrenOfType(this, PsiPerlStatement.class);
+    if(children != null && children.length>0){
+      return children[children.length-1];
+    }
+    return null;
   }
 }
