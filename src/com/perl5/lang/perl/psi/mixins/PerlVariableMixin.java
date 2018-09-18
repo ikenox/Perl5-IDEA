@@ -122,9 +122,13 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
           if (run instanceof PsiPerlMapExpr) {
             expr = ((PsiPerlMapExpr)run).getExpr();
             break;
+          }else if (run instanceof PsiPerlGrepExpr){
+            expr = ((PsiPerlGrepExpr)run).getExpr();
+            break;
           }
           run = run.getParent();
         }
+        // TODO for, foreach
 
         // fixme refactoring
         if (expr instanceof PsiPerlArrayCastExpr){
@@ -136,6 +140,7 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
             }
           }
         }
+        // TODO non-ref array
 
         return null;
       }

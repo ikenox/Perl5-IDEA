@@ -610,10 +610,12 @@ public class PerlPsiUtil implements PerlElementTypes {
     else if (element instanceof PsiPerlSortExpr) {
       return getPerlExpressionNamespace(((PsiPerlSortExpr)element).getScalarVariable());
     }
-    //else if (element instanceof PsiPerlMapExpr) {
-    // TODO
-    //return getPerlExpressionNamespace(((PsiPerlMapExpr)element).getExpr());
-    //}
+    else if (element instanceof PsiPerlMapExpr) {
+      // TODO get mapped value type
+      //return getPerlExpressionNamespace(((PsiPerlMapExpr)element).getExpr());
+    }
+
+    // TODO $hoge->[0]
 
     return null;
   }
