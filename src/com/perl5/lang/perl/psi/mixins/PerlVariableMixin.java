@@ -31,6 +31,7 @@ import com.perl5.lang.perl.psi.*;
 import com.perl5.lang.perl.psi.impl.PerlBuiltInVariable;
 import com.perl5.lang.perl.psi.impl.PerlCompositeElementImpl;
 import com.perl5.lang.perl.psi.impl.PerlImplicitVariableDeclaration;
+import com.perl5.lang.perl.psi.impl.PsiPerlConditionExprImpl;
 import com.perl5.lang.perl.psi.properties.PerlLexicalScope;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
@@ -122,24 +123,26 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
         while (run != null) {
           if (run instanceof PsiPerlMapExpr) {
             expr = ((PsiPerlMapExpr)run).getExpr();
+            break;
           }
           else if (run instanceof PsiPerlGrepExpr) {
             expr = ((PsiPerlGrepExpr)run).getExpr();
+            break;
           }
           else if (run instanceof PsiPerlForCompound) {
-            PsiPerlConditionExpr cond = ((PsiPerlForCompound)run).getConditionExpr();
-            expr = cond == null ? null : cond.getExpr();
+            PsiPerlForeachIterator iterator = PsiTreeUtil.getChildOfType(run, PsiPerlForeachIterator.class);
+            if (iterator == null) {
+              PsiPerlConditionExpr cond = ((PsiPerlForCompound)run).getConditionExpr();
+              expr = cond == null ? null : cond.getExpr();
+            }
           }
           //else if (run instanceof PsiPerlStatement) {
-            // TODO EXPR for EXPR
-            //PsiPerlForStatementModifier type = PsiTreeUtil.getChildOfType(run, PsiPerlForStatementModifier.class);
-            //expr = type == null ? null : type.getExpr();
+          // TODO EXPR for EXPR
+          //PsiPerlForStatementModifier type = PsiTreeUtil.getChildOfType(run, PsiPerlForStatementModifier.class);
+          //expr = type == null ? null : type.getExpr();
           //}
-          else {
-            run = run.getParent();
-            continue;
-          }
-          break;
+          run = run.getParent();
+          continue;
         }
         PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
         if (type instanceof PerlTypeArray) {
