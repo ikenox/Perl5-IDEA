@@ -23,6 +23,7 @@ import com.perl5.lang.perl.psi.properties.PerlIdentifierOwner;
 import com.perl5.lang.perl.psi.stubs.variables.PerlVariableDeclarationStub;
 import com.perl5.lang.perl.psi.utils.PerlVariableAnnotations;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
+import com.perl5.lang.perl.types.PerlType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +60,7 @@ public interface PerlVariableDeclarationElement
    * @return type string or null
    */
   @Nullable
-  String getLocallyDeclaredType();
+  PerlType getLocallyDeclaredType();
 
   /**
    * Checks if this declaration is lexical. IMPORTANT: builds PSI

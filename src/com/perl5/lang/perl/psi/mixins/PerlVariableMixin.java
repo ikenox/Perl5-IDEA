@@ -37,6 +37,7 @@ import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
 import com.perl5.lang.perl.types.PerlType;
 import com.perl5.lang.perl.types.PerlTypeArrayRef;
+import com.perl5.lang.perl.types.PerlTypeNamespace;
 import com.perl5.lang.perl.util.*;
 import org.jetbrains.annotations.Nullable;
 
@@ -125,10 +126,14 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
           run = run.getParent();
         }
 
-        PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
-        if (type != null) {
-          if (type instanceof PerlTypeArrayRef) {
-            return ((PerlTypeArrayRef)type).getInnerType().getNamespaceName();
+        // fixme refactoring
+        if (expr instanceof PsiPerlArrayCastExpr){
+          expr = ((PsiPerlArrayCastExpr)expr).getExpr();
+          PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
+          if (type != null) {
+            if (type instanceof PerlTypeArrayRef) {
+              return ((PerlTypeArrayRef)type).getInnerType();
+            }
           }
         }
 
@@ -149,16 +154,15 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
           if (declarationWrapper.isInvocantDeclaration() || declarationWrapper.isSelf()) {
             PerlSelfHinter selfHinter = PsiTreeUtil.getParentOfType(declarationWrapper, PerlSelfHinter.class);
             if (selfHinter != null) {
-              return selfHinter.getSelfNamespace();
+              return new PerlTypeNamespace(selfHinter.getSelfNamespace());
             }
-            return PerlPackageUtil.getContextPackageName(declarationWrapper);
+            return new PerlTypeNamespace(PerlPackageUtil.getContextPackageName(declarationWrapper));
           }
 
           // check explicit type in declaration
-          String declarationPackageName = declarationWrapper.getDeclaredType();
-          if (declarationPackageName != null) {
-            assert !declarationPackageName.equals("");
-            return declarationPackageName;
+          PerlType type = declarationWrapper.getDeclaredType();
+          if (type != null) {
+            return type;
           }
 
           // check assignment around declaration
@@ -193,7 +197,7 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
                                             " in " +
                                             declarationWrapper.getContainingFile();
 
-          final String[] guessResult = new String[]{null};
+          final PerlType[] guessResult = new PerlType[]{null};
 
           int startOffset = declarationWrapper.getTextRange().getEndOffset();
           int endOffset = getTextRange().getStartOffset();
@@ -223,14 +227,14 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
                       if (lastExpression != element && lastExpression.getTextOffset() < getTextOffset()) {
                         // source element is on the left side
                         // fixme implement variables assignment support. Need to build kinda visitor with recursion control
-                        String returnValue = null;
+                        PerlType returnValue = null;
                         if (lastExpression instanceof PerlMethodContainer) {
                           returnValue = PerlSubUtil.getMethodReturnValue((PerlMethodContainer)lastExpression);
                         }
                         if (lastExpression instanceof PerlDerefExpression) {
                           returnValue = ((PerlDerefExpression)lastExpression).guessType();
                         }
-                        if (StringUtil.isNotEmpty(returnValue)) {
+                        if (returnValue!=null) {
                           guessResult[0] = returnValue;
                           return false;
                         }

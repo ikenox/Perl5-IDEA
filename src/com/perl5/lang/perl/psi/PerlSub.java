@@ -16,9 +16,12 @@
 
 package com.perl5.lang.perl.psi;
 
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.perl5.lang.perl.psi.properties.PerlPackageMember;
 import com.perl5.lang.perl.psi.utils.PerlSubAnnotations;
+import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeNamespace;
 import com.perl5.lang.perl.util.PerlPackageUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -95,14 +98,23 @@ public interface PerlSub extends PerlDeprecatable, PerlPackageMember {
    * @return type of return value if can be calculated, or null
    */
   @Nullable
-  default String getReturns(@Nullable String contextPackage, @NotNull List<PsiElement> arguments) {
+  default PerlType getReturns(@Nullable String contextPackage, @NotNull List<PsiElement> arguments) {
     PerlSubAnnotations subAnnotations = getAnnotations();
     if (subAnnotations == null) {
       return null;
     }
 
-    String returns = subAnnotations.getReturns();
-    return PACKAGE_ANY.equals(returns) ? contextPackage : returns;
+    PerlType type = subAnnotations.getPerlType();
+    if (type == null) {
+      return null;
+    }
+
+    // fixme move to subannotations method
+    if (PACKAGE_ANY.equals(type.getNamespaceName())){
+        return StringUtil.isEmpty(contextPackage) ? null : new PerlTypeNamespace(contextPackage);
+    }
+
+    return type;
   }
 
   default boolean isDeprecated() {

@@ -45,7 +45,7 @@ public class PerlParameterInfoHandler implements ParameterInfoHandler<PsiPerlCal
   @Nullable
   @Override
   public PsiPerlCallArgumentsImpl findElementForParameterInfo(@NotNull CreateParameterInfoContext context) {
-    //		System.err.println("Find for create");
+    //		System.err.println("Find for fromNamespace");
     PsiPerlCallArgumentsImpl callArguments = findCallArguments(context);
 
     if (callArguments != null) {

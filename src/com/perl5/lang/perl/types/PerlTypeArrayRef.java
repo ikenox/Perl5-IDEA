@@ -17,10 +17,18 @@
 package com.perl5.lang.perl.types;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class PerlTypeArrayRef extends PerlTypeWrapping {
   public PerlTypeArrayRef(@NotNull PerlType innerType) {
     super(innerType);
+  }
+
+  public static PerlTypeArrayRef fromInnerType(@Nullable PerlType innerType) {
+    if (innerType == null) {
+      return null;
+    }
+    return new PerlTypeArrayRef(innerType);
   }
 
   @Override

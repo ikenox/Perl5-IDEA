@@ -16,16 +16,22 @@
 
 package com.perl5.lang.perl.psi.utils;
 
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.perl5.lang.perl.psi.*;
 import com.perl5.lang.perl.psi.stubs.PerlStubSerializationUtil;
+import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeArrayRef;
+import com.perl5.lang.perl.types.PerlTypeNamespace;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.List;
+
+import static com.perl5.lang.perl.types.PerlType.ARRAY_REF;
 
 /**
  * Created by hurricup on 08.08.2016.
@@ -37,22 +43,24 @@ public class PerlVariableAnnotations {
 
   private PerlReturnType myRefType = PerlReturnType.VALUE;
   private String myType = null;
-  private String myElementType = null;
+  private String myInnerType = null;
 
 
   public PerlVariableAnnotations() {
 
   }
 
-  public PerlVariableAnnotations(byte flags, @Nullable String type, PerlReturnType refType) {
+  public PerlVariableAnnotations(byte flags, @Nullable String type, String innerType, PerlReturnType refType) {
     myFlags = flags;
     myType = type;
     myRefType = refType;
+    myInnerType = innerType;
   }
 
   public void serialize(@NotNull StubOutputStream dataStream) throws IOException {
     dataStream.writeByte(myFlags);
     dataStream.writeName(myType);
+    dataStream.writeName(myInnerType);
     myRefType.serialize(dataStream);
   }
 
@@ -76,21 +84,34 @@ public class PerlVariableAnnotations {
     return myType;
   }
 
+  public PerlType getPerlType() {
+    String name;
+    switch (getRefType()) {
+      case ARRAY_REF:
+        name = getInnerType();
+        return StringUtil.isEmpty(name) ? null : new PerlTypeArrayRef(new PerlTypeNamespace(name));
+      default:
+        name = getType();
+        return StringUtil.isEmpty(name) ? null : new PerlTypeNamespace(name);
+    }
+  }
+
   public void setType(String type) {
     myType = type;
   }
 
-  public void setElementType(String type) {
-    myElementType = type;
+  public void setInnerType(String type) {
+    myInnerType = type;
   }
 
-  public String getElementType() {
-    return myElementType;
+  public String getInnerType() {
+    return myInnerType;
   }
 
   public static PerlVariableAnnotations deserialize(@NotNull StubInputStream dataStream) throws IOException {
     return new PerlVariableAnnotations(
       dataStream.readByte(),
+      PerlStubSerializationUtil.readString(dataStream),
       PerlStubSerializationUtil.readString(dataStream),
       PerlReturnType.deserialize(dataStream)
     );
@@ -110,20 +131,19 @@ public class PerlVariableAnnotations {
       }
       else if (annotation instanceof PsiPerlAnnotationType) // type
       {
-        PerlNamespaceElement ns;
-        ns = ((PsiPerlAnnotationType)annotation).getType();
+        PerlNamespaceElement ns = ((PsiPerlAnnotationType)annotation).getType();
         if (ns != null) {
           myAnnotations.setType(ns.getCanonicalName());
           myAnnotations.setRefType(PerlReturnType.REF);
-          // todo implement brackets and braces
-        }else{
-          PsiPerlArrayrefType arrayrefType = ((PsiPerlAnnotationType)annotation).getArrayrefType();
-          if(arrayrefType != null){
-            ns = PsiTreeUtil.getChildOfType(arrayrefType, PerlNamespaceElement.class);
-            if (ns != null) {
-              myAnnotations.setElementType(ns.getCanonicalName());
-              myAnnotations.setRefType(PerlReturnType.REF);
-            }
+        }
+        else {
+          // inner type
+          // fixme handle deep nested inner type
+          PsiPerlArrayrefType type = ((PsiPerlAnnotationType)annotation).getArrayrefType();
+          ns = PsiTreeUtil.getChildOfType(type, PerlNamespaceElement.class);
+          if (ns != null) {
+            myAnnotations.setInnerType(ns.getCanonicalName());
+            myAnnotations.setRefType(PerlReturnType.ARRAY_REF);
           }
         }
       }

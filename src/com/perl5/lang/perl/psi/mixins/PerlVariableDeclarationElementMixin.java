@@ -32,6 +32,8 @@ import com.perl5.lang.perl.psi.stubs.variables.PerlVariableDeclarationStub;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.psi.utils.PerlVariableAnnotations;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
+import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeNamespace;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,10 +99,10 @@ public class PerlVariableDeclarationElementMixin extends PerlStubBasedPsiElement
 
   @Nullable
   @Override
-  public String getDeclaredType() {
+  public PerlType getDeclaredType() {
     PerlVariableAnnotations variableAnnotations = getVariableAnnotations();
     if (variableAnnotations != null) {
-      String type = variableAnnotations.getType();
+      PerlType type = variableAnnotations.getPerlType();
       if (type != null) {
         return type;
       }
@@ -117,9 +119,12 @@ public class PerlVariableDeclarationElementMixin extends PerlStubBasedPsiElement
 
   @Nullable
   @Override
-  public String getLocallyDeclaredType() {
+  public PerlType getLocallyDeclaredType() {
     PerlVariableDeclarationExpr declaration = getPerlDeclaration();
-    return declaration == null ? null : declaration.getDeclarationType();
+    if(declaration == null || declaration.getDeclarationType()==null){
+      return null;
+    }
+    return new PerlTypeNamespace(declaration.getDeclarationType());
   }
 
   @Nullable
