@@ -42,6 +42,8 @@ import com.perl5.lang.perl.psi.properties.PerlLoop;
 import com.perl5.lang.perl.psi.properties.PerlStatementsContainer;
 import com.perl5.lang.perl.psi.stubs.PerlPolyNamedElementStub;
 import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeArray;
+import com.perl5.lang.perl.types.PerlTypeArrayRef;
 import com.perl5.lang.perl.types.PerlTypeNamespace;
 import com.perl5.lang.perl.util.PerlPackageUtil;
 import com.perl5.lang.perl.util.PerlSubUtil;
@@ -576,7 +578,7 @@ public class PerlPsiUtil implements PerlElementTypes {
 
   @Nullable
   public static PerlType getPerlExpressionNamespace(@Nullable PsiElement element) {
-    if (element == null) {
+      if (element == null) {
       return null;
     }
 
@@ -608,13 +610,34 @@ public class PerlPsiUtil implements PerlElementTypes {
       return getPerlExpressionNamespace(((PsiPerlGrepExpr)element).getExpr());
     }
     else if (element instanceof PsiPerlSortExpr) {
-      return getPerlExpressionNamespace(((PsiPerlSortExpr)element).getScalarVariable());
+      return getPerlExpressionNamespace(((PsiPerlSortExpr)element).getExpr());
     }
-    else if (element instanceof PsiPerlMapExpr) {
-      // TODO get mapped value type
-      //return getPerlExpressionNamespace(((PsiPerlMapExpr)element).getExpr());
-    }
+    else if (element instanceof PsiPerlArrayCastExpr) {
+      // @$some_var
+      PsiPerlExpr castedExpr = ((PsiPerlArrayCastExpr)element).getExpr();
+      if (castedExpr != null) {
+        PerlType type = PerlPsiUtil.getPerlExpressionNamespace(castedExpr);
+        if (type instanceof PerlTypeArrayRef) {
+          return PerlTypeArray.fromInnerType(((PerlTypeArrayRef)type).getInnerType());
+        }
+        return null;
+      }
 
+      // @{ ... }
+      PsiPerlBlock block = ((PsiPerlArrayCastExpr)element).getBlock();
+      if (block != null) {
+        // regard last expression namespace as returned type
+        PsiPerlStatement statement = block.getLastStatement();
+        if(statement!=null){
+          PerlType type = PerlPsiUtil.getPerlExpressionNamespace(statement.getExpr());
+          if (type instanceof PerlTypeArrayRef) {
+            return PerlTypeArray.fromInnerType(((PerlTypeArrayRef)type).getInnerType());
+          }
+        }
+        return null;
+      }
+    }
+    // TODO handle PsiPerlMapExpr
     // TODO $hoge->[0]
 
     return null;

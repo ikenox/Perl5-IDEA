@@ -23,6 +23,9 @@ public abstract class PerlType {
   public static final String ARRAY_REF = "ArrayRef";
   public static final String HASH_REF = "HashRef";
 
+  public static final String ARRAY = "Array";
+  public static final String HASH = "Hash";
+
   @Nullable
   public abstract String getNamespaceName();
 

@@ -35,6 +35,7 @@ import com.perl5.lang.perl.psi.properties.PerlLexicalScope;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
 import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeArray;
 import com.perl5.lang.perl.types.PerlTypeArrayRef;
 import com.perl5.lang.perl.types.PerlTypeNamespace;
 import com.perl5.lang.perl.util.*;
@@ -127,41 +128,13 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
             expr = ((PsiPerlGrepExpr)run).getExpr();
             break;
           }
+          // TODO for, foreach
           run = run.getParent();
         }
-        // TODO for, foreach
-
-        // fixme refactoring
-        if (expr instanceof PsiPerlArrayCastExpr) {
-          // @$some_var
-          PsiPerlExpr castedExpr = ((PsiPerlArrayCastExpr)expr).getExpr();
-          if (castedExpr != null) {
-            PerlType type = PerlPsiUtil.getPerlExpressionNamespace(castedExpr);
-            if (type != null) {
-              if (type instanceof PerlTypeArrayRef) {
-                return ((PerlTypeArrayRef)type).getInnerType();
-              }
-            }
-            return null;
-          }
-
-          // @{ ... }
-          PsiPerlBlock block = ((PsiPerlArrayCastExpr)expr).getBlock();
-          if (block != null) {
-            // regard last expression namespace as returned type
-            PsiPerlStatement statement = block.getLastStatement();
-            if(statement!=null){
-              PerlType type = PerlPsiUtil.getPerlExpressionNamespace(statement.getExpr());
-              if (type != null) {
-                return ((PerlTypeArrayRef)type).getInnerType();
-              }
-            }
-            return null;
-          }
+        PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
+        if (type instanceof PerlTypeArray) {
+          return ((PerlTypeArray)type).getInnerType();
         }
-        // TODO non-ref array
-
-        return null;
       }
 
       PerlVariableNameElement variableNameElement = getVariableNameElement();
