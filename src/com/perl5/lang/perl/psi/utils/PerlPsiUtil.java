@@ -647,14 +647,21 @@ public class PerlPsiUtil implements PerlElementTypes {
         }
       }
     }
-    else if (element instanceof PsiPerlArraySliceImpl) {
+    else if (element instanceof PsiPerlArrayElementImpl) {
       // $var[0]
-      PerlType type = getPerlExpressionNamespace(((PsiPerlArraySlice)element).getExpr());
+      PerlType type = getPerlExpressionNamespace(((PsiPerlArrayElement)element).getExpr());
       if (type instanceof PerlTypeArray) {
         return ((PerlTypeArray)type).getInnerType();
       }
     }
-    else if (element instanceof PsiPerlArrayCastExpr) {
+    else if (element instanceof PsiPerlArraySliceImpl) {
+      // $var[0]
+      PerlType type = getPerlExpressionNamespace(((PsiPerlArraySlice)element).getExpr());
+      if (type instanceof PerlTypeArray) {
+        return type;
+      }
+    }
+    else if (element instanceof PsiPerlArrayCastExprImpl) {
       // @{ ... }
       PsiPerlBlock block = ((PsiPerlArrayCastExpr)element).getBlock();
       if (block != null) {
