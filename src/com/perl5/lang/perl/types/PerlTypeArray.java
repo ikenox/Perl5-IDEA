@@ -32,6 +32,10 @@ public class PerlTypeArray extends PerlTypeWrapping {
     return new PerlTypeArray(innerType);
   }
 
+  public PerlTypeArrayRef getReferencedType(){
+    return PerlTypeArrayRef.fromInnerType(getInnerType());
+  }
+
   @Override
   public boolean equals(Object o) {
     return o instanceof PerlTypeArray && super.equals(o);

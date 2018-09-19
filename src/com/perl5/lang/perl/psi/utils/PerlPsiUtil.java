@@ -651,13 +651,14 @@ public class PerlPsiUtil implements PerlElementTypes {
       }
     }
     else if (element instanceof PsiPerlArrayCastExprImpl) {
-      // @{ ... }
       PerlType type = null;
 
       PsiPerlBlock block = ((PsiPerlArrayCastExpr)element).getBlock();
       if (block != null) {
-         type = block.guessReturnType();
-      }else{
+        // @{ ... }
+        type = block.guessReturnType();
+      }
+      else {
         // @$some_var
         PsiPerlExpr castedExpr = ((PsiPerlArrayCastExpr)element).getExpr();
         if (castedExpr != null) {
@@ -670,7 +671,12 @@ public class PerlPsiUtil implements PerlElementTypes {
       }
       return null;
     }
-    // TODO handle PsiPerlMapExpr
+    else if (element instanceof PsiPerlRefExprImpl) {
+      PerlType referencedType = getPerlExpressionNamespace(((PsiPerlRefExprImpl)element).getExpr());
+      if (referencedType instanceof PerlTypeArray) {
+        return ((PerlTypeArray)referencedType).getReferencedType();
+      }
+    }
 
     return null;
   }

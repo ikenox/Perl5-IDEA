@@ -22,7 +22,6 @@ import com.perl5.lang.perl.psi.properties.PerlLexicalScope;
 import com.perl5.lang.perl.psi.properties.PerlLoop;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.types.PerlType;
-import com.perl5.lang.perl.types.PerlTypeArray;
 import org.jetbrains.annotations.Nullable;
 
 /**
