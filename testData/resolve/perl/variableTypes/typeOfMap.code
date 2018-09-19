@@ -1,0 +1,6 @@
+#@type ArrayRef[JSON::XS]
+my $arr;
+
+my @mapped = map { $_ } @$arr;
+
+say @m<caret>apped;
