@@ -110,13 +110,14 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
       .getCachedValue(this, () -> CachedValueProvider.Result.create(getVariableTypeHeavy(), PsiModificationTracker.MODIFICATION_COUNT));
   }
 
+
   @Nullable
   private PerlType getVariableTypeHeavy() {
-    if (this instanceof PsiPerlScalarVariable) {
-      // System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
+    // System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
 
+    if (this instanceof PsiPerlScalarVariable || this instanceof PsiPerlArrayVariable) {
+      // handle default variable $_
       if (isBuiltIn() && "_".equals(getName())) {
-        // resolve default variable $_
         PsiPerlExpr expr = null;
         PsiElement run = getParent();
         // search parents
@@ -126,7 +127,15 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
             expr = type == null ? null : type.getExpr();
           }
           else if (run instanceof PsiPerlMapExpr) {
-            expr = ((PsiPerlMapExpr)run).getExpr();
+            if (((PsiPerlMapExpr)run).getBlock() != null) {
+              // map BLOCK EXPR
+              expr = ((PsiPerlMapExpr)run).getExpr();
+            }
+            else {
+              // map EXPR, EXPR
+              // seek second EXPR
+              expr = PsiTreeUtil.getNextSiblingOfType(((PsiPerlMapExpr)run).getExpr(), PsiPerlExpr.class);
+            }
             break;
           }
           else if (run instanceof PsiPerlGrepExpr) {
@@ -136,6 +145,7 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
           else if (run instanceof PsiPerlForCompound) {
             PsiPerlForeachIterator iterator = PsiTreeUtil.getChildOfType(run, PsiPerlForeachIterator.class);
             if (iterator == null) {
+              // default variable is only used when there is no itarator
               PsiPerlConditionExpr cond = ((PsiPerlForCompound)run).getConditionExpr();
               expr = cond == null ? null : cond.getExpr();
             }
@@ -146,6 +156,7 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
         if (type instanceof PerlTypeArray) {
           return ((PerlTypeArray)type).getInnerType();
         }
+        return null;
       }
 
       PerlVariableNameElement variableNameElement = getVariableNameElement();

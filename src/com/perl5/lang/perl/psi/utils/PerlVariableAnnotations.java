@@ -84,6 +84,7 @@ public class PerlVariableAnnotations {
     return myType;
   }
 
+  // fixme rename to getType
   public PerlType getPerlType() {
     String name;
     switch (getRefType()) {

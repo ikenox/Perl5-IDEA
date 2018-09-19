@@ -140,7 +140,7 @@ public class PerlVariableDeclarationElementMixin extends PerlStubBasedPsiElement
     if (declaration == null || declaration.getDeclarationType() == null) {
       return null;
     }
-    return new PerlTypeNamespace(declaration.getDeclarationType());
+    return declaration.getDeclarationType();
   }
 
   @Nullable

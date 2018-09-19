@@ -25,7 +25,6 @@ import com.perl5.lang.perl.psi.PerlVariableDeclarationElement;
 import com.perl5.lang.perl.psi.utils.PerlVariableAnnotations;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
 import com.perl5.lang.perl.types.PerlType;
-import com.perl5.lang.perl.types.PerlTypeNamespace;
 import org.jetbrains.annotations.Nullable;
 
 /**

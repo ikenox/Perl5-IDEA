@@ -613,11 +613,34 @@ public class PerlPsiUtil implements PerlElementTypes {
     else if (element instanceof PsiPerlSortExpr) {
       return getPerlExpressionNamespace(((PsiPerlSortExpr)element).getExpr());
     }
+    else if (element instanceof PsiPerlMapExpr) {
+      PsiPerlBlock block = ((PsiPerlMapExpr)element).getBlock();
+      if (block != null) {
+        // map BLOCK EXPR
+        // regard type of last expression in block as returned type
+        PsiPerlStatement statement = block.getLastStatement();
+        if (statement != null) {
+          PsiPerlExpr expr = statement.getExpr();
+          if (expr instanceof PsiPerlReturnExpr) {
+            // fixme psiPerlReturnExpr.getExpr() should be auto generated
+            expr = PsiTreeUtil.getChildOfType(expr, PsiPerlExpr.class);
+          }
+          PerlType innerType = PerlPsiUtil.getPerlExpressionNamespace(expr);
+          return PerlTypeArray.fromInnerType(innerType);
+        }
+        return null;
+      }
+      else {
+        // map EXPR, EXPR
+        PsiPerlExpr firstExpr = ((PsiPerlMapExpr)element).getExpr();
+        PerlType innerType = PerlPsiUtil.getPerlExpressionNamespace(firstExpr);
+        return PerlTypeArray.fromInnerType(innerType);
+      }
+    }
     else if (element instanceof PsiPerlArrayIndexImpl) {
-      // resolve $hoge->[0]
+      // EXPR->[0]
       PsiElement parent = element.getParent();
       if (parent instanceof PsiPerlDerefExpr) {
-        // EXPR->[0]
         PerlType type = ((PsiPerlDerefExpr)parent).getCurrentElementNamespace(element.getPrevSibling());
         if (type instanceof PerlTypeArrayRef) {
           return ((PerlTypeArrayRef)type).getInnerType();
@@ -625,33 +648,38 @@ public class PerlPsiUtil implements PerlElementTypes {
       }
     }
     else if (element instanceof PsiPerlArraySliceImpl) {
-      // EXPR[0]
+      // $var[0]
       PerlType type = getPerlExpressionNamespace(((PsiPerlArraySlice)element).getExpr());
       if (type instanceof PerlTypeArray) {
         return ((PerlTypeArray)type).getInnerType();
       }
     }
     else if (element instanceof PsiPerlArrayCastExpr) {
+      // @{ ... }
+      PsiPerlBlock block = ((PsiPerlArrayCastExpr)element).getBlock();
+      if (block != null) {
+        // regard last expression type as returned type
+        PsiPerlStatement statement = block.getLastStatement();
+        if (statement != null) {
+          PsiPerlExpr expr = statement.getExpr();
+          if (expr instanceof PsiPerlReturnExpr) {
+            // fixme psiPerlReturnExpr.getExpr() should be auto generated
+            expr = PsiTreeUtil.getChildOfType(expr, PsiPerlExpr.class);
+          }
+          PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
+          if (type instanceof PerlTypeArrayRef) {
+            return PerlTypeArray.fromInnerType(((PerlTypeArrayRef)type).getInnerType());
+          }
+        }
+        return null;
+      }
+
       // @$some_var
       PsiPerlExpr castedExpr = ((PsiPerlArrayCastExpr)element).getExpr();
       if (castedExpr != null) {
         PerlType type = PerlPsiUtil.getPerlExpressionNamespace(castedExpr);
         if (type instanceof PerlTypeArrayRef) {
           return PerlTypeArray.fromInnerType(((PerlTypeArrayRef)type).getInnerType());
-        }
-        return null;
-      }
-
-      // @{ ... }
-      PsiPerlBlock block = ((PsiPerlArrayCastExpr)element).getBlock();
-      if (block != null) {
-        // regard last expression namespace as returned type
-        PsiPerlStatement statement = block.getLastStatement();
-        if (statement != null) {
-          PerlType type = PerlPsiUtil.getPerlExpressionNamespace(statement.getExpr());
-          if (type instanceof PerlTypeArrayRef) {
-            return PerlTypeArray.fromInnerType(((PerlTypeArrayRef)type).getInnerType());
-          }
         }
         return null;
       }
