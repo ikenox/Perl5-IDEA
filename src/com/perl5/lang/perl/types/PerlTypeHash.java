@@ -17,18 +17,10 @@
 package com.perl5.lang.perl.types;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class PerlTypeHash extends PerlTypeWrapping {
   public PerlTypeHash(@NotNull PerlType innerType) {
     super(innerType);
-  }
-
-  public static PerlTypeHash fromInnerType(@Nullable PerlType innerType) {
-    if (innerType == null) {
-      return null;
-    }
-    return new PerlTypeHash(innerType);
   }
 
   @Override

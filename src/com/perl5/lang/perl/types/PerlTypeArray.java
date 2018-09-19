@@ -24,6 +24,7 @@ public class PerlTypeArray extends PerlTypeWrapping {
     super(innerType);
   }
 
+  @Nullable
   public static PerlTypeArray fromInnerType(@Nullable PerlType innerType) {
     if (innerType == null) {
       return null;

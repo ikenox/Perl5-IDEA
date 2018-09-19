@@ -24,11 +24,16 @@ public class PerlTypeArrayRef extends PerlTypeWrapping {
     super(innerType);
   }
 
+  @Nullable
   public static PerlTypeArrayRef fromInnerType(@Nullable PerlType innerType) {
     if (innerType == null) {
       return null;
     }
     return new PerlTypeArrayRef(innerType);
+  }
+
+  public PerlTypeArray getDereferencedType(){
+    return PerlTypeArray.fromInnerType(getInnerType());
   }
 
   @Override
