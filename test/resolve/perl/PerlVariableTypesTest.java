@@ -19,6 +19,7 @@ package resolve.perl;
 import base.PerlLightTestCase;
 import com.intellij.psi.PsiElement;
 import com.perl5.lang.perl.psi.PerlVariable;
+import com.perl5.lang.perl.types.PerlType;
 
 /**
  * Created by hurricup on 02.04.2016.
@@ -101,6 +102,7 @@ public class PerlVariableTypesTest extends PerlLightTestCase {
     PsiElement element = getElementAtCaret(PerlVariable.class);
     assertNotNull(element);
     assertInstanceOf(element, PerlVariable.class);
-    assertEquals(type, ((PerlVariable)element).guessVariableType());
+    PerlType guessedType = ((PerlVariable)element).guessVariableType();
+    assertEquals(type, guessedType == null ? null : guessedType.getNamespaceName());
   }
 }
