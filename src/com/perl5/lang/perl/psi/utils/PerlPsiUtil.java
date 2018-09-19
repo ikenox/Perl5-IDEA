@@ -578,6 +578,7 @@ public class PerlPsiUtil implements PerlElementTypes {
 
   @Nullable
   public static PerlType getPerlExpressionNamespace(@Nullable PsiElement element) {
+    // fixme change arg type to PsiPerlExpr
     if (element == null) {
       return null;
     }
@@ -613,7 +614,22 @@ public class PerlPsiUtil implements PerlElementTypes {
       return getPerlExpressionNamespace(((PsiPerlSortExpr)element).getExpr());
     }
     else if (element instanceof PsiPerlArrayIndexImpl) {
-      // TODO resolve $hoge->[0]
+      // resolve $hoge->[0]
+      PsiElement parent = element.getParent();
+      if (parent instanceof PsiPerlDerefExpr) {
+        // EXPR->[0]
+        PerlType type = ((PsiPerlDerefExpr)parent).getCurrentElementNamespace(element.getPrevSibling());
+        if (type instanceof PerlTypeArrayRef) {
+          return ((PerlTypeArrayRef)type).getInnerType();
+        }
+      }
+    }
+    else if (element instanceof PsiPerlArraySliceImpl) {
+      // EXPR[0]
+      PerlType type = getPerlExpressionNamespace(((PsiPerlArraySlice)element).getExpr());
+      if (type instanceof PerlTypeArray) {
+        return ((PerlTypeArray)type).getInnerType();
+      }
     }
     else if (element instanceof PsiPerlArrayCastExpr) {
       // @$some_var
