@@ -99,6 +99,20 @@ public class PerlVariableTypesTest extends PerlLightTestCase {
     doTest(new PerlTypeNamespace("DBI"));
   }
 
+  public void testTypeOfDereferencedArrayRef() {
+    doTest(
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS"))
+    );
+  }
+
+  public void testTypeOfReferencedArray() {
+    doTest(new PerlTypeArrayRef(new PerlTypeNamespace("JSON::XS")));
+  }
+
   public void testElementTypeOfArrayRef() {
     doTest(new PerlTypeNamespace("JSON::XS"));
   }
@@ -172,20 +186,6 @@ public class PerlVariableTypesTest extends PerlLightTestCase {
       new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
       new PerlTypeArray(new PerlTypeNamespace("JSON::XS"))
     );
-  }
-
-  public void testTypeOfDereferencedArrayRef() {
-    doTest(
-      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
-      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
-      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
-      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
-      new PerlTypeArray(new PerlTypeNamespace("JSON::XS"))
-    );
-  }
-
-  public void testTypeOfReferencedArray() {
-    doTest(new PerlTypeArrayRef(new PerlTypeNamespace("JSON::XS")));
   }
 
   public void doTest(PerlType... types) {
