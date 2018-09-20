@@ -1,8 +1,6 @@
 #@type ArrayRef[JSON::XS]
 my $arr;
 
-my @arr = @$arr;
-
-my $arr2 = \@arr;
+my $arr2 = \(@$arr);
 
 say $a<caret>rr2;

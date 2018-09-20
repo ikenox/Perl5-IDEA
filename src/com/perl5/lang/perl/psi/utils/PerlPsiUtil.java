@@ -638,9 +638,12 @@ public class PerlPsiUtil implements PerlElementTypes {
     }
     else if (element instanceof PsiPerlArrayElementImpl) {
       // $var[0]
-      PerlType type = getPerlExpressionNamespace(((PsiPerlArrayElement)element).getExpr());
-      if (type instanceof PerlTypeArray) {
-        return ((PerlTypeArray)type).getInnerType();
+      PsiPerlExpr expr = ((PsiPerlArrayElement)element).getExpr();
+      if(expr instanceof PsiPerlScalarVariableImpl){
+        PerlType type = getPerlExpressionNamespace(expr);
+        if (type instanceof PerlTypeArray) {
+          return ((PerlTypeArray)type).getInnerType();
+        }
       }
     }
     else if (element instanceof PsiPerlArraySliceImpl) {
