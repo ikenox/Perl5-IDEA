@@ -116,53 +116,75 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
     // System.err.println("Guessing type for " + getText() + " at " + getTextOffset());
 
     if (this instanceof PsiPerlScalarVariable || this instanceof PsiPerlArrayVariable) {
-      // handle default variable $_
-      if (isBuiltIn() && "_".equals(getName())) {
-        PsiPerlExpr expr = null;
-        PsiElement run = getParent();
-        // search parents
-        while (run != null) {
-          if (run instanceof PsiPerlStatement) {
-            PsiPerlForStatementModifier type = PsiTreeUtil.getChildOfType(run, PsiPerlForStatementModifier.class);
-            expr = type == null ? null : type.getExpr();
-          }
-          else if (run instanceof PsiPerlMapExpr) {
-            if (((PsiPerlMapExpr)run).getBlock() != null) {
-              // map BLOCK EXPR
-              expr = ((PsiPerlMapExpr)run).getExpr();
+
+      if (isBuiltIn()) {
+
+        // get type of builtin variables
+        // fixme too long if and while block
+        PsiPerlExpr arrayExpr = null;
+        if ("_".equals(getName())) {
+          PsiElement run = getParent();
+          // search parents
+          while (run != null) {
+            if (run instanceof PsiPerlStatement) {
+              PsiPerlForStatementModifier type = PsiTreeUtil.getChildOfType(run, PsiPerlForStatementModifier.class);
+              arrayExpr = type == null ? null : type.getExpr();
             }
-            else {
-              // map EXPR, EXPR
-              // seek second EXPR
-              expr = PsiTreeUtil.getNextSiblingOfType(((PsiPerlMapExpr)run).getExpr(), PsiPerlExpr.class);
+            else if (run instanceof PsiPerlMapExpr) {
+              if (((PsiPerlMapExpr)run).getBlock() != null) {
+                // map BLOCK EXPR
+                arrayExpr = ((PsiPerlMapExpr)run).getExpr();
+              }
+              else {
+                // map EXPR, EXPR
+                // seek second EXPR
+                arrayExpr = PsiTreeUtil.getNextSiblingOfType(((PsiPerlMapExpr)run).getExpr(), PsiPerlExpr.class);
+              }
+              break;
             }
-            break;
-          }
-          else if (run instanceof PsiPerlGrepExpr) {
-            // fixme generated PSI should have following process
-            expr = ((PsiPerlGrepExpr)run).getExpr();
-            if (((PsiPerlGrepExpr)run).getBlock() == null) {
-              // map EXPR, EXPR
-              // seek second EXPR
-              expr = PsiTreeUtil.getNextSiblingOfType(expr, PsiPerlExpr.class);
+            else if (run instanceof PsiPerlGrepExpr) {
+              // fixme generated PSI should have following process
+              arrayExpr = ((PsiPerlGrepExpr)run).getExpr();
+              if (((PsiPerlGrepExpr)run).getBlock() == null) {
+                // map EXPR, EXPR
+                // seek second EXPR
+                arrayExpr = PsiTreeUtil.getNextSiblingOfType(arrayExpr, PsiPerlExpr.class);
+              }
+              break;
             }
-            break;
-          }
-          else if (run instanceof PsiPerlForCompound) {
-            PsiPerlForeachIterator iterator = PsiTreeUtil.getChildOfType(run, PsiPerlForeachIterator.class);
-            if (iterator == null) {
-              // default variable is only used when there is no itarator
-              PsiPerlConditionExpr cond = ((PsiPerlForCompound)run).getConditionExpr();
-              expr = cond == null ? null : cond.getExpr();
+            else if (run instanceof PsiPerlForCompound) {
+              PsiPerlForeachIterator iterator = PsiTreeUtil.getChildOfType(run, PsiPerlForeachIterator.class);
+              if (iterator == null) {
+                // default variable is only used when there is no itarator
+                PsiPerlConditionExpr cond = ((PsiPerlForCompound)run).getConditionExpr();
+                arrayExpr = cond == null ? null : cond.getExpr();
+              }
             }
+            run = run.getParent();
           }
-          run = run.getParent();
         }
-        PerlType type = PerlPsiUtil.getPerlExpressionNamespace(expr);
-        if (type instanceof PerlTypeArray) {
-          return ((PerlTypeArray)type).getInnerType();
+        else if ("a".equals(getName()) || "b".equals(getName())) {
+          PsiElement run = getParent();
+          // search parents
+          while (run != null) {
+            if (run instanceof PsiPerlSortExpr) {
+              if (((PsiPerlSortExpr)run).getBlock() != null) {
+                // sort BLOCK EXPR
+                arrayExpr = ((PsiPerlSortExpr)run).getExpr();
+                break;
+              }
+            }
+            run = run.getParent();
+          }
         }
-        return null;
+
+        if (arrayExpr != null) {
+          PerlType type = PerlPsiUtil.getPerlExpressionNamespace(arrayExpr);
+          if (type instanceof PerlTypeArray) {
+            return ((PerlTypeArray)type).getInnerType();
+          }
+          return null;
+        }
       }
 
       PerlVariableNameElement variableNameElement = getVariableNameElement();
