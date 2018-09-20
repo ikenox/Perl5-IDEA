@@ -31,8 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.List;
 
-import static com.perl5.lang.perl.types.PerlType.ARRAY_REF;
-
 /**
  * Created by hurricup on 08.08.2016.
  */

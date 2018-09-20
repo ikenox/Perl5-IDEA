@@ -92,7 +92,7 @@ public class CookieManager {
       domainStore = (Map)store.get(domain);
     }
     else {
-      // we don't, so let's fromNamespace it and put it in the store
+      // we don't, so let's create it and put it in the store
       domainStore = new HashMap();
       store.put(domain, domainStore);
     }

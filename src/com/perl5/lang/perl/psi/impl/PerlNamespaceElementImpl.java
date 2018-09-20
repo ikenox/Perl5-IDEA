@@ -73,7 +73,6 @@ public class PerlNamespaceElementImpl extends PerlLeafPsiElementWithReferences i
     return isTag() ? PerlPackageUtil.getContextPackageName(this) : this.getText();
   }
 
-  @NotNull
   public String getCanonicalName() {
     return PerlPackageUtil.getCanonicalPackageName(getName());
   }

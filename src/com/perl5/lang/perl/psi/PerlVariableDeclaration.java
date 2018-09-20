@@ -37,7 +37,7 @@ public interface PerlVariableDeclaration extends PerlDeprecatable {
   /**
    * Returns declaration type in annotation or declaration
    *
-   * @return type string or null
+   * @return type or null
    */
   @Nullable
   PerlType getDeclaredType();

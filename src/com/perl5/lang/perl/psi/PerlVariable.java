@@ -32,7 +32,7 @@ public interface PerlVariable extends PsiPerlExpr, PerlLexicalScopeMember, PerlP
   /**
    * Guesses variable type from definition or context (uses containing perl file to cache types)
    *
-   * @return Package name if found
+   * @return type of variable if found
    */
   @Nullable
   PerlType guessVariableType();

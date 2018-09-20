@@ -70,7 +70,7 @@ public class PodColorSettingsPage implements ColorSettingsPage {
            "    my $tpl = DTL::Fast::Template->new('Hello, {{ username }}!');\n" +
            "    print $tpl->render({ username => 'Alex'});\n" +
            "\n" +
-           "Or fromNamespace a file: template.txt in /home/alex/templates with contents:\n";
+           "Or create a file: template.txt in /home/alex/templates with contents:\n";
   }
 
   @Nullable

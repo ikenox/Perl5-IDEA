@@ -33,7 +33,7 @@ public interface PerlVariableDeclarationExpr extends PsiPerlExpr, PerlNamespaceE
   /**
    * Returns explicit declared type
    *
-   * @return declaration type name or null
+   * @return declaration type or null
    */
   @Nullable
   PerlType getDeclarationType();

@@ -97,7 +97,7 @@ public class PerlRenameNamespaceDefinitionProcessor extends PerlRenamePolyRefere
               newContainingDir = subDir != null ? subDir : newContainingDir.createChildDirectory(null, subDirName);
             }
             catch (IOException e) {
-              throw new IncorrectOperationException("Could not fromNamespace subdirectory: " + newContainingDir.getPath() + "/" + subDirName);
+              throw new IncorrectOperationException("Could not create subdirectory: " + newContainingDir.getPath() + "/" + subDirName);
             }
           }
 

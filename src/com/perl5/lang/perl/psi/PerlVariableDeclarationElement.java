@@ -57,7 +57,7 @@ public interface PerlVariableDeclarationElement
   /**
    * Returns declaration type if variable is in declaration
    *
-   * @return type string or null
+   * @return type or null
    */
   @Nullable
   PerlType getLocallyDeclaredType();

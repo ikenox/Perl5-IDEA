@@ -43,11 +43,11 @@ public class PerlFileTypeService implements Disposable {
           for (PerlFileTypeProvider fileTypeProvider : PerlFileTypeProvider.EP_NAME.getExtensions()) {
             fileTypeProvider.addRoots(project, (root, function) -> {
               if (!root.isValid()) {
-                LOG.warn("Attempt to fromNamespace a descriptor for invalid file for " + root);
+                LOG.warn("Attempt to create a descriptor for invalid file for " + root);
                 return;
               }
               if (!root.isDirectory()) {
-                LOG.warn("Attempt to fromNamespace root for non-directory: " + root);
+                LOG.warn("Attempt to create root for non-directory: " + root);
                 return;
               }
               directoryIndex.putInfo(root, function);

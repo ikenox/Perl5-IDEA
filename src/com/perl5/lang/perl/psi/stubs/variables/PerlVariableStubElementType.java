@@ -45,7 +45,6 @@ public class PerlVariableStubElementType extends IStubElementType<PerlVariableDe
     super(debugName, PerlLanguage.INSTANCE);
   }
 
-  @NotNull
   @Override
   public PerlVariableDeclarationStub createStub(@NotNull PerlVariableDeclarationElement psi, StubElement parentStub) {
     return new PerlVariableDeclarationStub(

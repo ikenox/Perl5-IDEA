@@ -274,33 +274,17 @@ public class PerlImplicitVariableDeclaration extends PerlImplicitElement
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
 
     PerlImplicitVariableDeclaration that = (PerlImplicitVariableDeclaration)o;
 
-    if (myIsLexical != that.myIsLexical) {
-      return false;
-    }
-    if (myIsLocal != that.myIsLocal) {
-      return false;
-    }
-    if (myIsInvocant != that.myIsInvocant) {
-      return false;
-    }
-    if (myVariableType != that.myVariableType) {
-      return false;
-    }
-    if (!myVariableName.equals(that.myVariableName)) {
-      return false;
-    }
+    if (myIsLexical != that.myIsLexical) return false;
+    if (myIsLocal != that.myIsLocal) return false;
+    if (myIsInvocant != that.myIsInvocant) return false;
+    if (myVariableType != that.myVariableType) return false;
+    if (!myVariableName.equals(that.myVariableName)) return false;
     return myVariableClass != null ? myVariableClass.equals(that.myVariableClass) : that.myVariableClass == null;
   }
 
