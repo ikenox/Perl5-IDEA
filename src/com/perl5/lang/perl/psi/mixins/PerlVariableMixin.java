@@ -117,7 +117,7 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
 
     if (this instanceof PsiPerlScalarVariable || this instanceof PsiPerlArrayVariable) {
 
-      if (isBuiltIn()) {
+      if (isBuiltIn() && getActualType() == PerlVariableType.SCALAR) {
 
         // get type of builtin variables
         // fixme too long if and while block
@@ -192,6 +192,7 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
       if (variableNameElement != null) {
         // find lexicaly visible declaration and check type
         final PerlVariableDeclarationElement declarationWrapper = getLexicalDeclaration();
+
         if (declarationWrapper != null) {
 
           if (declarationWrapper instanceof PerlImplicitVariableDeclaration) {
