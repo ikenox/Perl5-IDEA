@@ -608,12 +608,20 @@ public class PerlPsiUtil implements PerlElementTypes {
       return getPerlExpressionNamespace(element.getLastChild());
     }
     else if (element instanceof PsiPerlGrepExpr) {
-      return getPerlExpressionNamespace(((PsiPerlGrepExpr)element).getExpr());
+      // fixme generated PSI should have following process
+      PsiPerlExpr expr = ((PsiPerlGrepExpr)element).getExpr();
+      if (((PsiPerlGrepExpr)element).getBlock() == null) {
+        // map EXPR, EXPR
+        // seek second EXPR
+        expr = PsiTreeUtil.getNextSiblingOfType(expr, PsiPerlExpr.class);
+      }
+      return getPerlExpressionNamespace(expr);
     }
     else if (element instanceof PsiPerlSortExpr) {
       return getPerlExpressionNamespace(((PsiPerlSortExpr)element).getExpr());
     }
     else if (element instanceof PsiPerlMapExpr) {
+      // fixme generated PSI should have following process
       PsiPerlBlock block = ((PsiPerlMapExpr)element).getBlock();
       if (block != null) {
         // map BLOCK EXPR

@@ -139,7 +139,13 @@ public abstract class PerlVariableMixin extends PerlCompositeElementImpl impleme
             break;
           }
           else if (run instanceof PsiPerlGrepExpr) {
+            // fixme generated PSI should have following process
             expr = ((PsiPerlGrepExpr)run).getExpr();
+            if (((PsiPerlGrepExpr)run).getBlock() == null) {
+              // map EXPR, EXPR
+              // seek second EXPR
+              expr = PsiTreeUtil.getNextSiblingOfType(expr, PsiPerlExpr.class);
+            }
             break;
           }
           else if (run instanceof PsiPerlForCompound) {
