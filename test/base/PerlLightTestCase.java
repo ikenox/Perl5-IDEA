@@ -104,6 +104,7 @@ import com.perl5.lang.perl.psi.*;
 import com.perl5.lang.perl.psi.light.PerlDelegatingLightNamedElement;
 import com.perl5.lang.perl.psi.mixins.PerlStringBareMixin;
 import com.perl5.lang.perl.psi.mixins.PerlStringMixin;
+import com.perl5.lang.perl.types.PerlType;
 import com.perl5.lang.perl.util.PerlPackageUtil;
 import gnu.trove.THashSet;
 import junit.framework.AssertionFailedError;
@@ -340,6 +341,10 @@ public abstract class PerlLightTestCase extends LightCodeInsightFixtureTestCase 
     int offset = myFixture.getEditor().getCaretModel().getOffset();
     PsiElement focused = myFixture.getFile().findElementAt(offset);
     return ObjectUtils.assertNotNull(PsiTreeUtil.getParentOfType(focused, clazz, false));
+  }
+
+  protected void moveCaretToNextLine(){
+    myFixture.getEditor().getCaretModel().moveCaretRelatively(0, 1, false,false,false);
   }
 
   protected <T extends PsiElement> T getElementAtCaretWithoutInjection(@NotNull Class<T> clazz) {

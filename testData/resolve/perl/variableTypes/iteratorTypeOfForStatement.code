@@ -2,5 +2,6 @@
 my $arr;
 
 for my $elem (@$arr){
-    say $e<caret>lem
+    say $<caret>elem;
+    say $_;
 }

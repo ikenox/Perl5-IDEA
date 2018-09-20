@@ -33,7 +33,7 @@ public class PerlVariableTypesTest extends PerlLightTestCase {
     return "testData/resolve/perl/variableTypes";
   }
 
-  public void testBuiltIn() {doTest(null);}
+  public void testBuiltIn() {doTest(new PerlType[]{null});}
 
   public void testDeclarationSingle() {
     doTest("declaration_single", new PerlTypeNamespace("Foo::Bar"));
@@ -47,8 +47,12 @@ public class PerlVariableTypesTest extends PerlLightTestCase {
     doTest("declaration_assignment_new", new PerlTypeNamespace("Foo::Bar"));
   }
 
+  public void testDeclarationExprAssignment() {
+    doTest("declaration_assignment_expr", new PerlTypeNamespace("Foo::Bar"));
+  }
+
   public void testBeforeAssignment() {
-    doTest("variable_before_assignment", null);
+    doTest("variable_before_assignment", new PerlType[]{null});
   }
 
   public void testAfterAssignment() {
@@ -99,52 +103,105 @@ public class PerlVariableTypesTest extends PerlLightTestCase {
     doTest(new PerlTypeNamespace("JSON::XS"));
   }
 
-  public void testIteratorTypeOfForStatement() {
+  public void testElementTypeOfArray() {
     doTest(new PerlTypeNamespace("JSON::XS"));
+  }
+
+  public void testIteratorTypeOfForStatement() {
+    doTest(
+      new PerlTypeNamespace("JSON::XS"),
+      null
+    );
   }
 
   public void testDefaultVariableTypeOfForStatement() {
-    doTest(new PerlTypeNamespace("JSON::XS"));
+    doTest(
+      new PerlTypeNamespace("Foo"),
+      new PerlTypeNamespace("Foo")
+    );
   }
 
   public void testDefaultVariableTypeOfMap() {
-    doTest(new PerlTypeNamespace("JSON::XS"));
+    doTest(
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS")
+    );
   }
 
   public void testDefaultVariableTypeOfGrep() {
-    doTest(new PerlTypeNamespace("JSON::XS"));
+    doTest(
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS")
+    );
+  }
+
+  public void testVariableTypeInSortBlock() {
+    doTest(
+      new PerlTypeNamespace("JSON::XS"),
+      new PerlTypeNamespace("JSON::XS")
+    );
   }
 
   public void testTypeOfMap() {
-    doTest(new PerlTypeArray(new PerlTypeNamespace("JSON::XS")));
+    doTest(
+      new PerlTypeArray(new PerlTypeNamespace("Foo::Bar")),
+      new PerlTypeArray(new PerlTypeNamespace("Foo::Bar")),
+      new PerlTypeArray(new PerlTypeNamespace("Foo::Bar"))
+    );
   }
 
   public void testTypeOfGrep() {
-    doTest(new PerlTypeArray(new PerlTypeNamespace("JSON::XS")));
+    doTest(
+      new PerlTypeArray(new PerlTypeNamespace("Foo::Bar")),
+      new PerlTypeArray(new PerlTypeNamespace("Foo::Bar")),
+      new PerlTypeArray(new PerlTypeNamespace("Foo::Bar"))
+    );
   }
 
   public void testTypeOfSort() {
-    doTest(new PerlTypeArray(new PerlTypeNamespace("JSON::XS")));
+    doTest(
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS"))
+    );
   }
 
   public void testTypeOfDereferencedArrayRef() {
-    doTest(new PerlTypeArray(new PerlTypeNamespace("JSON::XS")));
+    doTest(
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS")),
+      new PerlTypeArray(new PerlTypeNamespace("JSON::XS"))
+    );
   }
 
   public void testTypeOfReferencedArray() {
     doTest(new PerlTypeArrayRef(new PerlTypeNamespace("JSON::XS")));
   }
 
-  public void doTest(PerlType type) {
-    doTest(getTestName(true), type);
+  public void doTest(PerlType... types) {
+    doTest(getTestName(true), types);
   }
 
-  public void doTest(String filename, PerlType type){
+  public void doTest(String filename, PerlType... types) {
     initWithFileSmart(filename);
-    PsiElement element = getElementAtCaret(PerlVariable.class);
-    assertNotNull(element);
-    assertInstanceOf(element, PerlVariable.class);
-    PerlType guessedType = ((PerlVariable)element).guessVariableType();
-    assertEquals(type, guessedType);
+    for (PerlType type: types){
+      PsiElement element = getElementAtCaret(PerlVariable.class);
+      assertNotNull(element);
+      assertInstanceOf(element, PerlVariable.class);
+      PerlType guessedType = ((PerlVariable)element).guessVariableType();
+      assertEquals(type, guessedType);
+
+      moveCaretToNextLine();
+    }
   }
 }

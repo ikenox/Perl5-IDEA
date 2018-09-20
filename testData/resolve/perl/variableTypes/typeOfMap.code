@@ -1,6 +1,7 @@
-#@type ArrayRef[JSON::XS]
-my $arr;
+my @mapped1 = map { Foo::Bar->new } 1..5;
+my @mapped2 = map { return Foo::Bar->new; } 1..5;
+my @mapped3 = map Foo::Bar->new, 1..5;
 
-my @mapped = map { $_ } @$arr;
-
-say @m<caret>apped;
+say @<caret>mapped1;
+say @mapped2;
+say @mapped3;

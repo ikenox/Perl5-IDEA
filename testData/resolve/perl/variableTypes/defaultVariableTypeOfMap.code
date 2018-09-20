@@ -2,3 +2,8 @@
 my $arr;
 
 map { $<caret>_ } @$arr;
+map { $_ } @{$arr};
+map { $_ } @{return $arr;};
+map   $_, @$arr;
+map   $_, @{$arr};
+map   $_, @{return $arr;};
