@@ -18,6 +18,8 @@ package com.perl5.lang.perl.psi;
 
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
+import com.perl5.lang.perl.idea.formatter.PerlPreFormatter;
+import com.perl5.lang.perl.psi.impl.PsiPerlStringSqImpl;
 import com.perl5.lang.perl.psi.properties.PerlPackageMember;
 import com.perl5.lang.perl.psi.utils.PerlReturnType;
 import com.perl5.lang.perl.psi.utils.PerlSubAnnotations;
@@ -25,10 +27,13 @@ import com.perl5.lang.perl.types.PerlType;
 import com.perl5.lang.perl.types.PerlTypeArrayRef;
 import com.perl5.lang.perl.types.PerlTypeNamespace;
 import com.perl5.lang.perl.util.PerlPackageUtil;
+import com.perl5.lang.perl.util.PerlScalarUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.perl5.lang.perl.util.PerlPackageUtil.PACKAGE_ANY;
 
@@ -111,6 +116,7 @@ public interface PerlSub extends PerlDeprecatable, PerlPackageMember {
       if( PACKAGE_ANY.equals(name) ){
         return StringUtil.isEmpty(contextPackage) ? null : new PerlTypeNamespace(contextPackage);
       }
+      name = replacePlaceholder(name, arguments);
       return StringUtil.isEmpty(name) ? null : new PerlTypeNamespace(name);
     }
     else if (subAnnotations.getReturnType() == PerlReturnType.ARRAY_REF) {
@@ -118,6 +124,18 @@ public interface PerlSub extends PerlDeprecatable, PerlPackageMember {
       return StringUtil.isEmpty(name) ? null : new PerlTypeArrayRef(new PerlTypeNamespace(name));
     }
     return null;
+  }
+
+  default String replacePlaceholder(String returns, @NotNull List<PsiElement> arguments) {
+    int i=0;
+    for (PsiElement arg: arguments){
+      if(arg instanceof PerlString){
+        String newStr = PerlScalarUtil.getStringContent(arg);
+        returns = returns.replace(String.format("__%d__", i), newStr != null ? newStr : "");
+      }
+      i++;
+    }
+    return returns;
   }
 
   default boolean isDeprecated() {
