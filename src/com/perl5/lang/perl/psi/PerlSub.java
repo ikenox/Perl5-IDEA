@@ -19,8 +19,10 @@ package com.perl5.lang.perl.psi;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.perl5.lang.perl.psi.properties.PerlPackageMember;
+import com.perl5.lang.perl.psi.utils.PerlReturnType;
 import com.perl5.lang.perl.psi.utils.PerlSubAnnotations;
 import com.perl5.lang.perl.types.PerlType;
+import com.perl5.lang.perl.types.PerlTypeArrayRef;
 import com.perl5.lang.perl.types.PerlTypeNamespace;
 import com.perl5.lang.perl.util.PerlPackageUtil;
 import org.jetbrains.annotations.NotNull;
@@ -104,17 +106,18 @@ public interface PerlSub extends PerlDeprecatable, PerlPackageMember {
       return null;
     }
 
-    PerlType type = subAnnotations.getPerlType();
-    if (type == null) {
-      return null;
-    }
-
-    // fixme move to subannotations method
-    if (PACKAGE_ANY.equals(type.getNamespaceName())){
+    if (subAnnotations.getReturnType() == PerlReturnType.REF) {
+      String name = subAnnotations.getReturns();
+      if( PACKAGE_ANY.equals(name) ){
         return StringUtil.isEmpty(contextPackage) ? null : new PerlTypeNamespace(contextPackage);
+      }
+      return StringUtil.isEmpty(name) ? null : new PerlTypeNamespace(name);
     }
-
-    return type;
+    else if (subAnnotations.getReturnType() == PerlReturnType.ARRAY_REF) {
+      String name = subAnnotations.getInnerReturns();
+      return StringUtil.isEmpty(name) ? null : new PerlTypeArrayRef(new PerlTypeNamespace(name));
+    }
+    return null;
   }
 
   default boolean isDeprecated() {

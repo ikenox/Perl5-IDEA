@@ -103,19 +103,6 @@ public class PerlSubAnnotations {
     return myInnerReturns;
   }
 
-  @Nullable
-  public PerlType getPerlType() {
-    String name;
-    switch (getReturnType()) {
-      case ARRAY_REF:
-        name = getInnerReturns();
-        return StringUtil.isEmpty(name) ? null : new PerlTypeArrayRef(new PerlTypeNamespace(name));
-      default:
-        name = getReturns();
-        return StringUtil.isEmpty(name) ? null : new PerlTypeNamespace(name);
-    }
-  }
-
   public void setReturns(String returns) {
     myReturns = returns;
   }
