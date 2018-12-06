@@ -304,13 +304,10 @@ public abstract class PerlLightTestCaseBase extends LightCodeInsightFixtureTestC
       "PsiFile contains error elements:\n" + getFile().getText(),
       DebugUtil.psiToString(getFile(), true, false).contains("PsiErrorElement")
     );
+  }
 
   protected void moveCaretToNextLine(){
     myFixture.getEditor().getCaretModel().moveCaretRelatively(0, 1, false,false,false);
-  }
-
-  protected <T extends PsiElement> T getElementAtCaretWithoutInjection(@NotNull Class<T> clazz) {
-    return ObjectUtils.assertNotNull(PsiTreeUtil.getParentOfType(getElementAtCaretWithoutInjection(), clazz, false));
   }
 
   protected void doFormatTest() {
