@@ -25,7 +25,10 @@ import com.perl5.lang.perl.psi.impl.PsiPerlCallArgumentsImpl;
 import com.perl5.lang.perl.util.PerlArrayUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PerlSubArgumentsExtractor implements Processor<PsiPerlStatement>, PerlElementPatterns {
   private List<PerlSubArgument> myArguments = new ArrayList<>();
@@ -124,6 +127,28 @@ public class PerlSubArgumentsExtractor implements Processor<PsiPerlStatement>, P
       }
 
       return processNextStatement;
+    }
+    else if (SMART_ARGS_PATTERN.accepts(statement)) {
+      // Smart::Args statement
+      PsiPerlCallArguments callArgs = PsiTreeUtil.getChildOfType(statement.getExpr(), PsiPerlCallArguments.class);
+      if (callArgs == null) {
+        return true;
+      }
+      PsiPerlCommaSequenceExpr commaSeqExpr = PsiTreeUtil.getChildOfType(callArgs, PsiPerlCommaSequenceExpr.class);
+      if (commaSeqExpr == null) {
+        return true;
+      }
+      List<PerlSubArgument> args = PsiTreeUtil.getChildrenOfTypeAsList(commaSeqExpr, PsiPerlVariableDeclarationLexical.class)
+        .stream()
+        .flatMap(x -> x.getVariableDeclarationElementList().stream())
+        .map(x -> PerlSubArgument.mandatory(
+          PerlVariableType.SCALAR,
+          x.getExpr().getLastChild().getText(),
+          ""
+        ))
+        .collect(Collectors.toList());
+      myArguments.addAll(args);
+      return true;
     }
     return false;
   }

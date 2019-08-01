@@ -19,7 +19,10 @@ package com.perl5.lang.perl.psi.mixins;
 import com.intellij.lang.ASTNode;
 import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import com.intellij.psi.stubs.IStubElementType;
@@ -29,18 +32,29 @@ import com.perl5.lang.perl.idea.codeInsight.typeInference.value.PerlScalarValue;
 import com.perl5.lang.perl.idea.codeInsight.typeInference.value.PerlValue;
 import com.perl5.lang.perl.idea.presentations.PerlItemPresentationSimpleDynamicLocation;
 import com.perl5.lang.perl.psi.*;
+import com.perl5.lang.perl.psi.impl.PsiPerlAnonHashImpl;
+import com.perl5.lang.perl.psi.impl.PsiPerlCommaSequenceExprImpl;
+import com.perl5.lang.perl.psi.impl.PsiPerlStringSqImpl;
+import com.perl5.lang.perl.psi.impl.PsiPerlSubCallExprImpl;
 import com.perl5.lang.perl.psi.properties.PerlLexicalScope;
 import com.perl5.lang.perl.psi.stubs.variables.PerlVariableDeclarationStub;
 import com.perl5.lang.perl.psi.utils.PerlPsiUtil;
 import com.perl5.lang.perl.psi.utils.PerlVariableAnnotations;
 import com.perl5.lang.perl.psi.utils.PerlVariableType;
 import com.perl5.lang.perl.util.PerlPackageUtil;
+import com.perl5.lang.perl.util.PerlHashEntry;
+import com.perl5.lang.perl.util.PerlHashUtil;
+import com.perl5.lang.perl.util.PerlPackageUtil;
+import com.perl5.lang.perl.util.PerlScalarUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.perl5.lang.perl.idea.codeInsight.typeInference.value.PerlValues.UNKNOWN_VALUE;
 
@@ -112,6 +126,12 @@ public class PerlVariableDeclarationElementMixin extends PerlStubBasedPsiElement
     if (!valueFromAnnotations.isUnknown()) {
       return valueFromAnnotations;
     }
+
+    PerlValue smartArgsType = getSmartArgsType();
+    if (smartArgsType != null) {
+      return smartArgsType;
+    }
+
     return getPsiDeclaredValue();
   }
 
@@ -127,10 +147,85 @@ public class PerlVariableDeclarationElementMixin extends PerlStubBasedPsiElement
   }
 
   @Nullable
+  public PerlValue getSmartArgsType() {
+    PsiElement parent = getParent();
+    if (!(parent instanceof PsiPerlVariableDeclarationLexical)) {
+      return null;
+    }
+
+    // Smart::Args
+    PsiElement elem = getParent();
+    for (int i = 0; i < 3; i++) {
+      elem = elem.getParent();
+      if (elem == null) {
+        return null;
+      }
+    }
+
+    if (!(elem instanceof PsiPerlSubCallExprImpl)) {
+      return null;
+    }
+    PsiPerlMethod method = ((PsiPerlSubCallExprImpl)elem).getMethod();
+    if (method == null) {
+      return null;
+    }
+
+    PerlSubNameElement subNameElem = method.getSubNameElement();
+    if (subNameElem == null) {
+      return null;
+    }
+    if (!subNameElem.getName().equals("args") && !subNameElem.getName().equals("args_pos")) {
+      return null;
+    }
+    // TODO Do we need check that subs package name is Smart::Args?
+
+    PsiElement next = PsiTreeUtil.getNextSiblingOfType(getParent(), PsiElement.class);
+    if(next instanceof PsiWhiteSpace){
+      next = next.getNextSibling();
+    }
+    if (next == null) {
+      return null;
+    }
+    PsiElement nextNext = next.getNextSibling();
+    if(nextNext instanceof PsiWhiteSpace){
+      nextNext = nextNext.getNextSibling();
+    }
+    if (nextNext == null) {
+      return null;
+    }
+
+    if (nextNext instanceof PsiPerlStringSqImpl) {
+      return PerlScalarValue.create(unwrap(PerlScalarUtil.getStringContent(nextNext)));
+    }
+    else if (nextNext instanceof PsiPerlAnonHash) {
+      Map<String, PerlHashEntry> parameters = PerlHashUtil.packToHash(PerlHashUtil.collectHashElements(nextNext));
+      PerlHashEntry isaEntry = parameters.get("isa");
+      if (isaEntry == null) {
+        isaEntry = parameters.get("does");
+      }
+      if (isaEntry != null) {
+        return PerlScalarValue.create(unwrap(isaEntry.getValueString()));
+      }
+    }
+    return null;
+  }
+
+  public static final String pattern = "^Maybe\\[(.+)\\]$";
+  // Create a Pattern object
+  public static final Pattern r = Pattern.compile(pattern);
+
+  public static String unwrap(String type) {
+    Matcher matcher = r.matcher(type);
+    if(matcher.matches()){
+      return matcher.group(1);
+    }
+    return type;
+  }
+
+  @Nullable
   private PerlVariableDeclarationExpr getPerlDeclaration() {
     return PsiTreeUtil.getParentOfType(this, PerlVariableDeclarationExpr.class);
   }
-
 
   @NotNull
   @Override
